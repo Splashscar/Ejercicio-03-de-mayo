@@ -1,9 +1,15 @@
 {
     "ACC-001": {
         "titular": "Carlos Mendoza",
-        "saldo": 500000.0,
+        "saldo": 499000.0,
         "estado": "ACTIVA",
-        "historial": []
+        "historial": [
+            {
+                "tipo": "DEBITO",
+                "monto": 1000,
+                "target": "ACC-003"
+            }
+        ]
     },
     "ACC-002": {
         "titular": "Ana Gomez",
@@ -13,8 +19,14 @@
     },
     "ACC-003": {
         "titular": "Juan Perez",
-        "saldo": 1000000.0,
+        "saldo": 1001000.0,
         "estado": "ACTIVA",
-        "historial": []
+        "historial": [
+            {
+                "tipo": "CREDITO",
+                "monto": 1000,
+                "target": "ACC-001"
+            }
+        ]
     }
 }
