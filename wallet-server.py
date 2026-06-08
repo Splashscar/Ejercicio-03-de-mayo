@@ -3,6 +3,8 @@ import os
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
+from services.transaction_service import TransactionService
+from repositories.account_repository import AccountRepository
 
 DATA_FILE = "accounts.json"
 
@@ -57,31 +59,14 @@ class PaymentGatewayAPI(BaseHTTPRequestHandler):
             destiny = payload.get("hacia")
             amount = payload.get("monto") 
 
-            with open(DATA_FILE, "r") as f:
-                db = json.load(f)
+            response, status = TransactionService.transfer(
+                origin,
+                destiny,
+                amount
+            )
 
-            if origin in db and destiny in db:
-                if db[origin]["estado"] == "ACTIVA":
-                    if db[origin]["saldo"] >= amount:
-                        
-                        time.sleep(0.5) 
-
-                        db[origin]["saldo"] -= amount
-                        db[destiny]["saldo"] += amount
-
-                        db[origin]["historial"].append({"tipo": "DEBITO", "monto": amount, "target": destiny})
-                        db[destiny]["historial"].append({"tipo": "CREDITO", "monto": amount, "target": origin})
-
-                        with open(DATA_FILE, "w") as f:
-                            json.dump(db, f, indent=4)
-
-                        return self._response({"status": "SUCCESS", "message": "Transferencia procesada"})
-                    else:
-                        return self._response({"error": "Fondos insuficientes"}, 400)
-                else:
-                    return self._response({"error": "Cuenta de origen no disponible"}, 403)
-            else:
-                return self._response({"error": "Cuentas no encontradas"}, 404)
+            return self._response(response, status)
+                    
 
         elif path == "/api/v1/accounts/admin/bypass-status":
             acc_id = payload.get("id")
