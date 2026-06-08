@@ -1,4 +1,7 @@
 from repositories.account_repository import AccountRepository
+import threading
+
+transaction_lock = threading.Lock()
 
 
 class TransactionService:
@@ -30,22 +33,24 @@ class TransactionService:
         if db[origin]["saldo"] < amount:
             return {"error": "Fondos insuficientes"}, 400
 
-        db[origin]["saldo"] -= amount
-        db[destiny]["saldo"] += amount
+        with transaction_lock:
 
-        db[origin]["historial"].append({
-            "tipo": "DEBITO",
-            "monto": amount,
-            "target": destiny
-        })
+            db[origin]["saldo"] -= amount
+            db[destiny]["saldo"] += amount
 
-        db[destiny]["historial"].append({
-            "tipo": "CREDITO",
-            "monto": amount,
-            "target": origin
-        })
+            db[origin]["historial"].append({
+                "tipo": "DEBITO",
+                "monto": amount,
+                "target": destiny
+            })
 
-        AccountRepository.save_accounts(db)
+            db[destiny]["historial"].append({
+                "tipo": "CREDITO",
+                "monto": amount,
+                "target": origin
+            })
+
+            AccountRepository.save_accounts(db)
 
         return {
             "status": "SUCCESS",
