@@ -14,7 +14,7 @@
     "ACC-003": {
         "titular": "Juan Perez",
         "saldo": 1000000.0,
-        "estado": "BLOQUEADA",
+        "estado": "ACTIVA",
         "historial": []
     }
 }

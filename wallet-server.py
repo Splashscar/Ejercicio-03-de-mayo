@@ -5,6 +5,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 from services.transaction_service import TransactionService
 from repositories.account_repository import AccountRepository
+from middleware.security_middleware import validate_token
 
 DATA_FILE = "accounts.json"
 
@@ -70,6 +71,12 @@ class PaymentGatewayAPI(BaseHTTPRequestHandler):
                     
 
         elif path == "/api/v1/accounts/admin/bypass-status":
+            if not validate_token(self.headers):
+                return self._response(
+                    {"error": "Unauthorized"},
+                    401
+                )
+            
             acc_id = payload.get("id")
             new_status = payload.get("status")
             
